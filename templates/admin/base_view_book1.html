@@ -1,0 +1,180 @@
+{% load staticfiles %}
+{% load i18n static %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<title>{% block title %}{% endblock %}</title>
+
+
+
+<script type="text/javascript" src="{% static 'jquery-1.12.3.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'datatables.min.js' %}"> </script>
+
+<link rel="stylesheet" media="all" href="{% static "jquery.dataTables.min.css" %}" type="text/css">
+
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/base.css" %}"/>
+
+
+{% block extrastyle %}{% endblock %}
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
+{% block extrahead %}{% endblock %}
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+</head>
+{% load i18n %}
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+  data-admin-utc-offset="{% now "Z" %}">
+
+<!-- Container -->
+<div id="container">
+
+    {% if not is_popup %}
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+        {% block branding %}{% endblock %}
+        </div>
+        {% block usertools %}
+        {% if has_permission %}
+        <div id="user-tools">
+            {% block welcome-msg %}
+                {% trans 'Welcome,' %}
+                <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+            {% endblock %}
+            {% block userlinks %}
+                {% if site_url %}
+                    <a href="{{ site_url }}">{% trans 'View site' %}</a> /
+                {% endif %}
+                {% if user.is_active and user.is_staff %}
+                    {% url 'django-admindocs-docroot' as docsroot %}
+                    {% if docsroot %}
+                        <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
+                    {% endif %}
+                {% endif %}
+                {% if user.has_usable_password %}
+                <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+                {% endif %}
+                <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+            {% endblock %}
+        </div>
+        {% endif %}
+        {% endblock %}
+        {% block nav-global %}{% endblock %}
+    </div>
+    <!-- END Header -->
+    {% block breadcrumbs %}
+    <div class="breadcrumbs">
+
+    {% if title %} &rsaquo; {{ title }}{% endif %}
+    </div>
+    {% endblock %}
+    {% endif %}
+
+    {% block messages %}
+        {% if messages %}
+        <ul class="messagelist">{% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+        {% endfor %}</ul>
+        {% endif %}
+    {% endblock messages %}
+
+    <!-- Content -->
+    <div id="content" class="{% block coltype %}colM{% endblock %}">
+        {% block pretitle %}{% endblock %}
+        {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+        {% block content %}
+        {% block object-tools %}{% endblock %}
+        {{ content }}
+        {% endblock %}
+
+
+    </div>
+<h1>Телефонный справочник</h1>
+<table>
+<tr>
+<td width="90%">
+<table id="example" >
+        <thead>
+             <tr>
+            <td> <a>Здание</a> </td>
+            <td> <a>Отделение</a> </td>
+            <td> <a>Этаж</a> </td>
+            <td> <a>Комната</a> </td>
+            <td> <a>Фамилия</a> </td>
+            <td> <a>Имя</a> </td>
+            <td> <a>Отчество</a> </td>
+                 <td> <a>Должность</a> </td>
+            <td><a>Телефон внутренний</a> </td>
+            <td><a>Телефон городской</a> </td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in Data.all %}
+        <tr>
+        <td> <a>{{ item.Building }}</a> </td>
+            <td> <a>{{ item.Otdel }}</a> </td>
+            <td> <a>{{ item.Floor }}</a> </td>
+            <td> <a>{{ item.Room }}</a> </td>
+        <td> <a>{{ item.SurName }}</a> </td>
+        <td> <a>{{ item.FirstName }}</a> </td>
+            <td> <a>{{ item.Patronymic }}</a> </td>
+            <td> <a>{{ item.Post }}</a> </td>
+        <td><a>{{ item.Number_in }}</a> </td>
+        <td><a>{{ item.Number_ext }}</a> </td>
+        </tr>
+    {% endfor %}
+       </tbody>
+    </table>
+</td>
+<td width="10%">
+    <a href=/book/?id_otdel=0>Все отделения </a></br>
+{% for item in Otdel.all %}
+    <a href=/book/?id_otdel={{ item.id }}>{{ item.Name }} </a></br>
+{% endfor %}
+</td>
+    </tr>
+</table>
+  <script>
+  $(function(){
+    $("#example").dataTable();
+      })
+  </script>
+<script>
+$("#example").dataTable({
+   language: {
+      "processing": "Подождите...",
+      "search": "Поиск:",
+      "lengthMenu": "Показать _MENU_ записей",
+      "info": "Записи с _START_ до _END_ из _TOTAL_ записей",
+      "infoEmpty": "Записи с 0 до 0 из 0 записей",
+      "infoFiltered": "(отфильтровано из _MAX_ записей)",
+      "infoPostFix": "",
+      "loadingRecords": "Загрузка записей...",
+      "zeroRecords": "Записи отсутствуют.",
+      "emptyTable": "В таблице отсутствуют данные",
+      "paginate": {
+        "first": "Первая",
+        "previous": "Предыдущая",
+        "next": "Следующая",
+        "last": "Последняя"
+      },
+      "aria": {
+        "sortAscending": ": активировать для сортировки столбца по возрастанию",
+        "sortDescending": ": активировать для сортировки столбца по убыванию"
+      }
+  },
+
+
+});
+
+</script>
+
+    <!-- END Content -->
+
+    {% block footer %}<div id="footer"></div>{% endblock %}
+</div>
+<!-- END Container -->
+
+
+</body>
+</html>

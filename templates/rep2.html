@@ -1,0 +1,74 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+
+
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Телефонный справочник</a></h1>
+
+{% endblock %}
+
+{% block nav-global %}    {{ Otdel.Name }}
+
+{% endblock %}
+
+{% block sidebar %}
+
+    {{ Building_id }}
+    {{ Otdel_id }}
+    {{ Txt }}
+    {{ Show_all }}
+
+    <form action="/book/" method="post">
+{% csrf_token %}
+    <a>Здание</a>
+    <select name="Building">
+    <option value="0"></option>
+{% for item in Building.all %}
+    <option value="{{ item.id }}"{% if Building_id == item.id %} selected {% endif %}>{{ item.Name }}</option>
+{% endfor %}
+    </select>
+    <a>Отделение</a>
+    <select name="Otdel">
+    <option value="0"></option>
+{% for item in Otdel.all %}
+    <option value="{{ item.id }}"{% if Otdel_id == item.id %} selected {% endif %}>{{ item.Name }}</option>
+{% endfor %}
+</select>
+    <a>ФИО</a>
+ <input name="Txt" type="text" size="40" value="{{ Txt }}">
+        </br>
+        <input type="submit" value="Найти" name="Show"/>
+        <input type="submit" value="Показать все" name="Show"/>
+
+</form>
+
+    <table>
+        <tr>
+        <td> <a>Здание</a> </td>
+            <td> <a>Отделение</a> </td>
+            <td> <a>Этаж</a> </td>
+            <td> <a>Комната</a> </td>
+        <td> <a>Фамилия</a> </td>
+        <td> <a>Имя</a> </td>
+            <td> <a>Отчество</a> </td>
+        <td><a>Телефон внутренний</a> </td>
+        <td><a>Телефон городской</a> </td>
+        </tr>
+    {% for item in Data.all %}
+        <tr>
+        <td> <a>{{ item.Building }}</a> </td>
+            <td> <a>{{ item.Otdel }}</a> </td>
+            <td> <a>{{ item.Floor }}</a> </td>
+            <td> <a>{{ item.Room }}</a> </td>
+        <td> <a>{{ item.SurName }}</a> </td>
+        <td> <a>{{ item.FirstName }}</a> </td>
+            <td> <a>{{ item.Patronymic }}</a> </td>
+        <td><a>{{ item.Number_in }}</a> </td>
+        <td><a>{{ item.Number_ext }}</a> </td>
+        </tr>
+    {% endfor %}
+
+{% endblock %}
+
